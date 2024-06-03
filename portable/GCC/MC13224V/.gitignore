@@ -1,0 +1,20 @@
+.cache/*
+CMakeCache.txt
+<<<<<<< HEAD
+Makefile
+CMakeFiles/*
+bsp/CMakeFiles/*
+bsp/Makefile
+compile_commands.json
+cmake_install.cmake
+
+# output
+=======
+cmake_install.cmake
+CMakeFiles/*
+bsp/CMakeFiles/*
+bsp/Makefile
+Makefile
+compile_commands.json
+>>>>>>> c42b1ebc8 (Trabajando en port.c, portmacro.c y FreeRTOSConfig.h)
+lib/*
