@@ -9,3 +9,5 @@ compile_commands.json
 
 # output
 lib/*
+*libbsp.a
+bsp/obj/*
