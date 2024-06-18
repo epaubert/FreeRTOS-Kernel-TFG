@@ -7,6 +7,11 @@
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
 
+/* *INDENT-OFF* */
+#ifdef __cplusplus
+    extern "C" {
+#endif
+/* *INDENT-ON* */
 /*-----------------------------------------------------------
  * Port specific definitions.
  *
@@ -53,7 +58,6 @@ typedef unsigned long UBaseType_t;
 #define portTICK_PERIOD_MS ((TickType_t)1000 / configTICK_RATE_HZ)
 #define portBYTE_ALIGNMENT 8
 #define portNOP() __asm volatile("NOP");
-#define portBYTE_ALIGNMENT 8
 
 #if configUSE_PORT_OPTIMISED_TASK_SELECTION == 1
 
@@ -126,45 +130,49 @@ extern void vPortYield(void);
 #define portTASK_FUNCTION(vFunction, pvParameters)                             \
   void vFunction(void *pvParameters)
 
-#if (configNUMBER_OF_CORES > 1)
-/* Return the core ID on which the code is running. */
-#define portGET_CORE_ID() 0
-
-/* Set the interrupt mask. */
-#define portSET_INTERRUPT_MASK() 0
-
-/* Clear the interrupt mask. */
-#define portCLEAR_INTERRUPT_MASK(x) ((void)(x))
-
-/* Request the core ID x to yield. */
-#define portYIELD_CORE(x)                                                      \
-  do {                                                                         \
-  } while (0)
-
-/* Acquire the TASK lock. TASK lock is a recursive lock.
- * It should be able to be locked by the same core multiple times. */
-#define portGET_TASK_LOCK()                                                    \
-  do {                                                                         \
-  } while (0)
-
-/* Release the TASK lock. If a TASK lock is locked by the same core multiple
- * times, it should be released as many times as it is locked. */
-#define portRELEASE_TASK_LOCK()                                                \
-  do {                                                                         \
-  } while (0)
-
-/* Acquire the ISR lock. ISR lock is a recursive lock.
- * It should be able to be locked by the same core multiple times. */
-#define portGET_ISR_LOCK()                                                     \
-  do {                                                                         \
-  } while (0)
-
-/* Release the ISR lock. If a ISR lock is locked by the same core multiple
- * times, \ it should be released as many times as it is locked. */
-#define portRELEASE_ISR_LOCK()                                                 \
-  do {                                                                         \
-  } while (0)
-
-#endif /* if ( configNUMBER_OF_CORES > 1 ) */
+// NOTE: Todo este comentario no es necesario porque solo tiene un núcleo
+//
+// #if (configNUMBER_OF_CORES > 1)
+// /* Return the core ID on which the code is running. */
+// #define portGET_CORE_ID() 0
+//
+// /* Set the interrupt mask. */
+// #define portSET_INTERRUPT_MASK() 0
+//
+// /* Clear the interrupt mask. */
+// #define portCLEAR_INTERRUPT_MASK(x) ((void)(x))
+//
+// /* Request the core ID x to yield. */
+// #define portYIELD_CORE(x)                                                      \
+//   do {                                                                         \
+//   } while (0)
+//
+// /* Acquire the TASK lock. TASK lock is a recursive lock.
+//  * It should be able to be locked by the same core multiple times. */
+// #define portGET_TASK_LOCK()                                                    \
+//   do {                                                                         \
+//   } while (0)
+//
+// /* Release the TASK lock. If a TASK lock is locked by the same core multiple
+//  * times, it should be released as many times as it is locked. */
+// #define portRELEASE_TASK_LOCK()                                                \
+//   do {                                                                         \
+//   } while (0)
+//
+// /* Acquire the ISR lock. ISR lock is a recursive lock.
+//  * It should be able to be locked by the same core multiple times. */
+// #define portGET_ISR_LOCK()                                                     \
+//   do {                                                                         \
+//   } while (0)
+//
+// /* Release the ISR lock. If a ISR lock is locked by the same core multiple
+//  * times, \ it should be released as many times as it is locked. */
+// #define portRELEASE_ISR_LOCK()                                                 \
+//   do {                                                                         \
+//   } while (0)
+//
+//
+// NOTE: end
+// #endif /* if ( configNUMBER_OF_CORES > 1 ) */
 
 #endif /* PORTMACRO_H */

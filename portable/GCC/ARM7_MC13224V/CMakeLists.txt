@@ -39,6 +39,7 @@ add_subdirectory("${BSP_DIR}")
 add_library(freertos_kernel_port OBJECT)
 target_sources(freertos_kernel_port
        PRIVATE
+         # portISR.c
          port.c
          portmacro.h
 )

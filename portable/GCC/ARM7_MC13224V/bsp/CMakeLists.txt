@@ -56,6 +56,7 @@ add_library(bsp
     drivers/gpio.c
     drivers/itc.c
     drivers/uart.c
+    drivers/timers.c
 ) 
 set_target_properties(bsp PROPERTIES LINKER_LANGUAGE C)
 target_include_directories( bsp PUBLIC "include")
