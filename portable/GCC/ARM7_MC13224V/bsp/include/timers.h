@@ -11,9 +11,9 @@ typedef enum {
 
 typedef enum {
 	timer_0 = 0,
-	timer_1 = 1,
-	timer_2 = 2,
-	timer_3 = 3,
+	timer_1,
+	timer_2,
+	timer_3,
 	timer_MAX,
 
 } timer_id_t;

@@ -7,6 +7,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#define TickTimer timer_0
+#define TimerIntSource itc_src_tmr
 
 /* Constants required to setup the task context. */
 #define portINITIAL_SPSR                   ( ( StackType_t ) 0x1f ) /* System mode, ARM mode, interrupts enabled. */
@@ -25,14 +27,36 @@ xTaskCreateStatic(TaskFunction_t pxTaskCode, const char *const pcName,
 	                StackType_t *const puxStackBuffer,
 	                StaticTask_t *const pxTaskBuffer) PRIVILEGED_FUNCTION;
 
-// FIXME:
-BaseType_t xPortStartScheduler(void) { return pdTRUE; }
 
-// FIXME: ?
-void vPortEndScheduler(void) {}
+// needed for the tick interrupt
+static void prvSetupTimerInterrupt( void );
+void vTickISR( void ) __attribute__( ( naked ) );
 
-// TODO:
+// TODO: ?
+static void prvSetupTimerInterrupt( void ){
+    itc_set_handler(TimerIntSource, vTickISR);
+    itc_enable_interrupt(TimerIntSource);
+
+    TimerInt_Init(TickTimer, configTICK_RATE_HZ);
+}
+
 // FIXME:
+BaseType_t xPortStartScheduler(void) { 
+    // Iniciar el timer que genera las interrupciones.
+    // Las interrupciones ya deberían de estar desactivadas aqui.
+    prvSetupTimerInterrupt();
+
+    // FIXME: No implementada todavía
+    vPortISRStartFirstTask();
+
+    return pdTRUE; 
+}
+
+void vPortEndScheduler(void) {
+    // Nothing to do, the scheduler shouldn't end
+}
+
+// TODO:Copied from LPC2000
 StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
 	                                 TaskFunction_t pxCode, void *pvParameters) {
 	(void)pxTopOfStack;
@@ -123,35 +147,12 @@ void vPortYield(void) {
 
 // FIXME:?
 static void prvTickISR(void) {
-	/* Interrupts must have been enabled for the ISR to fire, so we have to
-	 * save the context with interrupts enabled. */
-
-#if (configNUMBER_OF_CORES == 1)
-	{
-	  /* Maintain the tick count. */
-	  if (xTaskIncrementTick() != pdFALSE) {
-	    /* Switch to the highest priority task that is ready to run. */
-	    vTaskSwitchContext();
-	  }
-	}
-#else
-	{
-	  UBaseType_t ulPreviousMask;
-
-	  /* Tasks or ISRs running on other cores may still in critical section in
-	   * multiple cores environment. Incrementing tick needs to performed in
-	   * critical section. */
-	  ulPreviousMask = taskENTER_CRITICAL_FROM_ISR();
-
-	  /* Maintain the tick count. */
-	  if (xTaskIncrementTick() != pdFALSE) {
-	    /* Switch to the highest priority task that is ready to run. */
-	    vTaskSwitchContext(portGET_CORE_ID());
-	  }
-
-	  taskEXIT_CRITICAL_FROM_ISR(ulPreviousMask);
-	}
-#endif /* if ( configNUMBER_OF_CORES == 1 ) */
-
-	/* start executing the new task */
+    /* Interrupts must have been enabled for the ISR to fire, so we have to
+    * save the context with interrupts enabled. */
+    /* Maintain the tick count. */
+    if (xTaskIncrementTick() != pdFALSE) {
+        /* Switch to the highest priority task that is ready to run. */
+        vTaskSwitchContext();
+    }
+    /* start executing the new task */
 }

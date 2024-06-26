@@ -12,6 +12,7 @@
 #include "itc.h"
 #include "gpio.h"
 #include "uart.h"
+#include "timers.h"
 
 /*
  * Configuración de la CPU
@@ -58,5 +59,19 @@
  */
 #define ITC_BASE		((void *) 0x80020000)
 
+
+/*
+ * Configuración de los timers
+ */
+#define TMR_BASE		((void *) 0x80007000)
+
+#define TMR0_MASK		0x00
+#define TMR0_NAME 		"/dev/tmr0"
+#define TMR1_MASK 		0x20
+#define TMR1_NAME 		"/dev/tmr1"
+#define TMR2_MASK 		0x40
+#define TMR2_NAME 		"/dev/tmr2"
+#define TMR3_MASK 		0x60
+#define TMR3_NAME 		"/dev/tmr3"
 
 #endif /* __SYSTEM_H_ */

@@ -28,8 +28,6 @@ set(ASFLAGS "-gstabs -mcpu=arm7tdmi -mfpu=softfpa") # -mthumb -mthumb-interwork
 set(ARFLAGS "-src")
 set(LDFLAGS -T${LINKER_SCRIPT})
 
-set(SRAM_BASE "0x00400000")
-
 project(freertos_kernel_port C ASM)
 
 # BSP
@@ -39,14 +37,15 @@ add_subdirectory("${BSP_DIR}")
 add_library(freertos_kernel_port OBJECT)
 target_sources(freertos_kernel_port
        PRIVATE
-         # portISR.c
          port.c
-         portmacro.h
+         portISR.c
+         # portmacro.h
 )
 add_library(freertos_kernel_port_headers INTERFACE)
 target_include_directories(freertos_kernel_port_headers INTERFACE
         .
         ../../../include/
+        bsp/include/
 )
 target_link_libraries(freertos_kernel_port
        PRIVATE

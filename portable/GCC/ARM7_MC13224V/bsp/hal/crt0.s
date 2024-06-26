@@ -121,9 +121,9 @@ _start:
 	bx	ip			@ Saltamos a la funcion
 
 @
-@ Cambiamos a modo User y habilitamos las interrupciones
+@ Cambiamos a modo supervisor y habilitamos las interrupciones
 @
-	msr	cpsr_c, #_USR_MODE
+	msr	cpsr_c, #_SVC_MODE
 @
 @ Salto a main
 @

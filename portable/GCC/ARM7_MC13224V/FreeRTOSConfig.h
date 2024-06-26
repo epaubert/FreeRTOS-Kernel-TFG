@@ -77,7 +77,7 @@
 
 /* configTICK_RATE_HZ sets frequency of the tick interrupt in Hz, normally
  * calculated from the configCPU_CLOCK_HZ value. */
-#define configTICK_RATE_HZ 120
+#define configTICK_RATE_HZ 10
 
 /* Set configUSE_PREEMPTION to 1 to use pre-emptive scheduling.  Set
  * configUSE_PREEMPTION to 0 to use co-operative scheduling.
@@ -97,7 +97,7 @@
  * 0 to select the next task to run using a generic C algorithm that works for
  * all FreeRTOS ports.  Not all FreeRTOS ports have this option.  Defaults to 0
  * if left undefined. */
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
+#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
 
 /* Set configUSE_TICKLESS_IDLE to 1 to use the low power tickless mode.  Set to
  * 0 to keep the tick interrupt running at all times.  Not all FreeRTOS ports
@@ -287,6 +287,7 @@
  * or heap_4.c are included in the build.  This value is defaulted to 4096 bytes
  * but it must be tailored to each application.  Note the heap will appear in
  * the .bss section.  See https://www.freertos.org/a00111.html. */
+// TODO: Comprobar cuanta necesito
 #define configTOTAL_HEAP_SIZE 4096
 
 /* Set configAPPLICATION_ALLOCATED_HEAP to 1 to have the application allocate
@@ -386,6 +387,7 @@
  * functions introduce a dependency on string formatting functions that would
  * otherwise not exist - hence they are kept separate.  Defaults to 0 if left
  * undefined. */
+// TODO: Puede que me interese
 #define configUSE_STATS_FORMATTING_FUNCTIONS 0
 
 /******************************************************************************/
@@ -636,7 +638,7 @@
 #define configUSE_QUEUE_SETS 0
 #define configUSE_APPLICATION_TASK_TAG 0
 
-/* Set the following INCLUDE_* constants to 1 to incldue the named API function,
+/* Set the following INCLUDE_* constants to 1 to include the named API function,
  * or 0 to exclude the named API function.  Most linkers will remove unused
  * functions even when the constant is 1. */
 #define INCLUDE_vTaskPrioritySet 1
