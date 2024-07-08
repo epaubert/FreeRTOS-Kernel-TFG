@@ -17,13 +17,13 @@ set(CROSS_COMPILE "${BIN}arm-none-eabi-")
 set(CMAKE_C_COMPILER "${CROSS_COMPILE}gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_COMPILE}g++")
 set(CMAKE_C_LINKER "${CROSS_COMPILE}ld")
-set(CMAKE_C_ASSEMBLER "${CROSS_COMPILE}as")
+set(CMAKE_C_ASSEMBLER "${CROSS_COMPILE}as") 
 set(CMAKE_AR "${CROSS_COMPILE}ar")
 
 set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
 
 # Flags
-set(CFLAGS "-c -g -O2 -Wall -mcpu=arm7tdmi") # -g -mthumb -mthumb-interwork 
+set(CFLAGS "-c -g -Og -Wall -mcpu=arm7tdmi") # -g -mthumb -mthumb-interwork 
 set(ASFLAGS "-gstabs -mcpu=arm7tdmi -mfpu=softfpa") # -mthumb -mthumb-interwork
 set(ARFLAGS "-src")
 set(LDFLAGS -T${LINKER_SCRIPT})
@@ -54,8 +54,8 @@ target_link_libraries(freertos_kernel_port
          freertos_kernel_include 
 )
 target_compile_options(freertos_kernel_port PRIVATE
-    -O2
     -g
+    -Og
     -Wall
     -mcpu=arm7tdmi
     # -mthumb

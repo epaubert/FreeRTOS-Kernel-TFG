@@ -40,13 +40,11 @@ static void prvSetupTimerInterrupt( void ){
     TimerInt_Init(TickTimer, configTICK_RATE_HZ);
 }
 
-// FIXME:
 BaseType_t xPortStartScheduler(void) { 
     // Iniciar el timer que genera las interrupciones.
     // Las interrupciones ya deberían de estar desactivadas aqui.
     prvSetupTimerInterrupt();
 
-    // FIXME: No implementada todavía
     vPortISRStartFirstTask();
 
     return pdTRUE; 
@@ -129,23 +127,22 @@ StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
 	return pxTopOfStack;
 }
 
-// FIXME:
-void vPortYield(void) {
-	/* Save the current Context */
+// void vPortYield(void) __atribute__(NAKED) {
+//     /* Within an IRQ ISR the link register has an offset from the true return
+//      * address, but an SWI ISR does not.  Add the offset manually so the same
+//      * ISR return code can be used in both cases. */
+//     __asm volatile ( "ADD       LR, LR, #4" );
+//
+//     /* Perform the context switch.  First save the context of the current task. */
+//     portSAVE_CONTEXT();
+//
+// 	/* Switch to the highest priority task that is ready to run. */
+// 	 vTaskSwitchContext();
+//
+//     /* Restore the context of the new task. */
+//     portRESTORE_CONTEXT();
+// }
 
-	/* Switch to the highest priority task that is ready to run. */
-#if (configNUMBER_OF_CORES == 1)
-	{ vTaskSwitchContext(); }
-#else
-	{
-	  vTaskSwitchContext(portGET_CORE_ID());
-	}
-#endif
-
-	/* Start executing the task we have just switched to. */
-}
-
-// FIXME:?
 static void prvTickISR(void) {
     /* Interrupts must have been enabled for the ISR to fire, so we have to
     * save the context with interrupts enabled. */

@@ -190,7 +190,7 @@
 /* If configHEAP_CLEAR_MEMORY_ON_FREE is set to 1, then blocks of memory
  * allocated using pvPortMalloc() will be cleared (i.e. set to zero) when freed
  * using vPortFree(). Defaults to 0 if left undefined. */
-#define configHEAP_CLEAR_MEMORY_ON_FREE 1
+#define configHEAP_CLEAR_MEMORY_ON_FREE 0
 
 /* vTaskList and vTaskGetRunTimeStats APIs take a buffer as a parameter and
  * assume that the length of the buffer is configSTATS_BUFFER_MAX_LENGTH.
@@ -220,7 +220,7 @@
  * FreeRTOS/source/timers.c source file must be included in the build if
  * configUSE_TIMERS is set to 1.  Default to 0 if left undefined.  See
  * https://www.freertos.org/RTOS-software-timer.html. */
-#define configUSE_TIMERS 1
+#define configUSE_TIMERS 0
 
 /* configTIMER_TASK_PRIORITY sets the priority used by the timer task.  Only
  * used if configUSE_TIMERS is set to 1.  The timer task is a standard FreeRTOS
@@ -288,7 +288,7 @@
  * but it must be tailored to each application.  Note the heap will appear in
  * the .bss section.  See https://www.freertos.org/a00111.html. */
 // TODO: Comprobar cuanta necesito
-#define configTOTAL_HEAP_SIZE 4096
+#define configTOTAL_HEAP_SIZE 32768
 
 /* Set configAPPLICATION_ALLOCATED_HEAP to 1 to have the application allocate
  * the array used as the FreeRTOS heap.  Set to 0 to have the linker allocate

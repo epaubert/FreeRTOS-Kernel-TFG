@@ -41,6 +41,7 @@ _vector_table:
 @ Tabla de direcciones absolutas de los manejadores
 @
 	.globl	_excep_handlers
+    .extern vPortYieldProcessor      @ Declare vPortYieldProcessor as external
 _excep_handlers:
 	.word	_soft_reset_handler
 	.word	_undef_handler
@@ -67,7 +68,7 @@ _soft_reset_handler:
 _undef_handler:
 	b	.
 _swi_handler:
-	b	.
+    ldr     pc, =vPortYieldProcessor  @ Branch to the C SWI handler
 _pabt_handler:
 	b	.
 _dabt_handler:

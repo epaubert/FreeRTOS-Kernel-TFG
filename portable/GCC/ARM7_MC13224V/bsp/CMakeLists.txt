@@ -24,7 +24,7 @@ set(CMAKE_AR "${CROSS_COMPILE}ar")
 set(CMAKE_EXE_LINKER_FLAGS "-specs=nosys.specs" CACHE INTERNAL "")
 
 # Flags
-set(CFLAGS "-c -g -O2 -Wall -mcpu=arm7tdmi") # -mthumb -mthumb-interwork")
+set(CFLAGS "-c -g -Og -Wall -mcpu=arm7tdmi") # -mthumb -mthumb-interwork")
 set(ASFLAGS "-gstabs -mcpu=arm7tdmi -mfpu=softfpa") # -mthumb")
 set(ARFLAGS "-src")
 
@@ -61,8 +61,8 @@ add_library(bsp
 set_target_properties(bsp PROPERTIES LINKER_LANGUAGE C)
 target_include_directories( bsp PUBLIC "include")
 target_compile_options(bsp PRIVATE
-    -O2
     -g
+    -Og
     -Wall
     -mcpu=arm7tdmi
     # -mthumb
