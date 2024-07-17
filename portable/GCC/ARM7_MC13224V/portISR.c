@@ -6,7 +6,8 @@
 volatile uint32_t ulCriticalNesting = 9999UL;
 
 /* ISR to handle manual context switches (from a call to taskYIELD()). */
-void vPortYieldProcessor( void ) __attribute__( (naked) ); //(interrupt("SWI"),naked)
+// void vPortYieldProcessor( void ) __attribute__( (naked) );
+void vPortYieldProcessor( void ) __attribute__( (interrupt("SWI")) );
 
 /*
  * The scheduler can only be started from ARM mode, hence the inclusion of this
@@ -14,13 +15,8 @@ void vPortYieldProcessor( void ) __attribute__( (naked) ); //(interrupt("SWI"),n
  */
 void vPortISRStartFirstTask( void );
 /*-----------------------------------------------------------*/
-void vTickISR( void ) __attribute__( ( naked ) );
-
-// #define SWISource itc_src_asm
-// static void prvSetupSWI(void){
-//     itc_set_handler(SWISource, vPortYieldProcessor);
-//     itc_enable_interrupt(SWISource);
-// }
+// void vTickISR( void ) __attribute__( ( naked ) );
+void vTickISR( void ) __attribute__( ( interrupt("IRQ") ) );
 
 void vPortISRStartFirstTask( void )
 {
@@ -40,12 +36,12 @@ void vPortISRStartFirstTask( void )
  * way the same restore context function can be used when restoring the context
  * saved from the ISR or that saved from a call to vPortYieldProcessor.
  */
-void vPortYieldProcessor( void )
+__attribute__( (interrupt("SWI")) ) void vPortYieldProcessor( void )
 {
     /* Within an IRQ ISR the link register has an offset from the true return
      * address, but an SWI ISR does not.  Add the offset manually so the same
      * ISR return code can be used in both cases. */
-    // __asm volatile ( "ADD       LR, LR, #4" );
+    __asm volatile ( "ADD       LR, LR, #4" );
 
     /* Perform the context switch.  First save the context of the current task. */
     portSAVE_CONTEXT();
@@ -61,7 +57,8 @@ void vPortYieldProcessor( void )
 /*
  * The ISR used for the scheduler tick.
  */
-void vTickISR( void )
+
+__attribute__( ( interrupt("IRQ") ) ) void vTickISR( void )
 {
     /* Save the context of the interrupted task. */
     portSAVE_CONTEXT();
@@ -69,23 +66,21 @@ void vTickISR( void )
     /* Increment the RTOS tick count, then look for the highest priority
      * task that is ready to run. */
 
-    BaseType_t switch_context = xTaskIncrementTick();
-
-    if (switch_context == pdTRUE) {
-       vTaskSwitchContext();
-    }
-
-    // __asm volatile
-    // (
-    //     "   bl xTaskIncrementTick   \t\n" \
-    //     "   cmp r0, #0              \t\n" \
-    //     "   beq SkipContextSwitch   \t\n" \
-    //     "   bl vTaskSwitchContext   \t\n" \
-    //     "SkipContextSwitch:         \t\n"
-    // );
+    __asm volatile
+    (
+        "   bl xTaskIncrementTick   \t\n" \
+        "   cmp r0, #0              \t\n" \
+        "   beq SkipContextSwitch   \t\n" \
+        "   bl vTaskSwitchContext   \t\n" \
+        "SkipContextSwitch:         \t\n"
+    );
 
     /* Ready for the next interrupt. */
-    clearInt(getIntTmr());
+    // clearInt(getIntTmr());
+    __asm volatile(
+        "   bl      getIntTmr          \t\n" \
+        "   bl      clearInt           \t\n"
+    );
 
     /* Restore the context of the new task. */
     portRESTORE_CONTEXT();

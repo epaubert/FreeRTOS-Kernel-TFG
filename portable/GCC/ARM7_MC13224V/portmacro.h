@@ -157,8 +157,9 @@ typedef unsigned long UBaseType_t;
     }
 
 extern void vTaskSwitchContext( void );
+extern void vPortYieldProcessor( void );
 #define portYIELD_FROM_ISR()    vTaskSwitchContext()
-#define portYIELD()             __asm volatile ( "SWI 0" )
+#define portYIELD()             vPortYieldProcessor()
 /*-----------------------------------------------------------*/
 
 #define portGET_HIGHEST_PRIORITY(uxTopPriority, uxReadyPriorities)             \
@@ -186,16 +187,14 @@ __asm volatile (                                                       \
     "MSR    CPSR, R0        \n\t"   /* Write back modified value.   */ \
     "LDMIA  SP!, {R0}           " ) /* Pop R0.                      */
 
-// #if (configNUMBER_OF_CORES == 1)
+#if (configNUMBER_OF_CORES == 1)
+extern void itc_disable_ints(void);
+extern void itc_restore_ints(void);
 /* preserve current interrupt state and then disable interrupts */
 #define portENTER_CRITICAL() itc_disable_ints()
-
 /* restore previously preserved interrupt state */
 #define portEXIT_CRITICAL() itc_restore_ints()
-// #endif /* if ( configNUMBER_OF_CORES == 1 ) */
-
-// extern void vPortYield(void);
-// #define portYIELD() vPortYield()
+#endif /* if ( configNUMBER_OF_CORES == 1 ) */
 
 /* Task function macros as described on the FreeRTOS.org WEB site. */
 #define portTASK_FUNCTION_PROTO(vFunction, pvParameters)                       \

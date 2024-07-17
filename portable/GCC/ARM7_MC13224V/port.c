@@ -16,21 +16,19 @@
 #define portINSTRUCTION_SIZE               ( ( StackType_t ) 4 )
 #define portNO_CRITICAL_SECTION_NESTING    ( ( StackType_t ) 0 )
 
-// FIXME: ?
-void vTaskDelay(const TickType_t xTicksToDelay) PRIVILEGED_FUNCTION;
-// FIXME: ?
-void vTaskStartScheduler(void) PRIVILEGED_FUNCTION;
-TaskHandle_t
-xTaskCreateStatic(TaskFunction_t pxTaskCode, const char *const pcName,
-	                const configSTACK_DEPTH_TYPE uxStackDepth,
-	                void *const pvParameters, UBaseType_t uxPriority,
-	                StackType_t *const puxStackBuffer,
-	                StaticTask_t *const pxTaskBuffer) PRIVILEGED_FUNCTION;
+// void vTaskDelay(const TickType_t xTicksToDelay) PRIVILEGED_FUNCTION;
+// void vTaskStartScheduler(void) PRIVILEGED_FUNCTION;
+//
+// TaskHandle_t xTaskCreateStatic(TaskFunction_t pxTaskCode, const char *const pcName,
+// 	                const configSTACK_DEPTH_TYPE uxStackDepth,
+// 	                void *const pvParameters, UBaseType_t uxPriority,
+// 	                StackType_t *const puxStackBuffer,
+// 	                StaticTask_t *const pxTaskBuffer) PRIVILEGED_FUNCTION;
 
 
 // needed for the tick interrupt
 static void prvSetupTimerInterrupt( void );
-void vTickISR( void ) __attribute__( ( naked ) );
+void vTickISR( void ) __attribute__( ( interrupt("IRQ") ) );
 
 // TODO: ?
 static void prvSetupTimerInterrupt( void ){
@@ -143,13 +141,13 @@ StackType_t *pxPortInitialiseStack(StackType_t *pxTopOfStack,
 //     portRESTORE_CONTEXT();
 // }
 
-static void prvTickISR(void) {
-    /* Interrupts must have been enabled for the ISR to fire, so we have to
-    * save the context with interrupts enabled. */
-    /* Maintain the tick count. */
-    if (xTaskIncrementTick() != pdFALSE) {
-        /* Switch to the highest priority task that is ready to run. */
-        vTaskSwitchContext();
-    }
-    /* start executing the new task */
-}
+// static void prvTickISR(void) {
+//     /* Interrupts must have been enabled for the ISR to fire, so we have to
+//     * save the context with interrupts enabled. */
+//     /* Maintain the tick count. */
+//     if (xTaskIncrementTick() != pdFALSE) {
+//         /* Switch to the highest priority task that is ready to run. */
+//         vTaskSwitchContext();
+//     }
+//     /* start executing the new task */
+// }

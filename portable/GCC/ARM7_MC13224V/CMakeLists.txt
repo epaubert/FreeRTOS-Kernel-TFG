@@ -8,6 +8,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(BIN "/run/current-system/sw/bin/")
 set(SHELL "${BIN}sh")
 set(BSP_DIR "bsp/")
+set(DEMO_DIR "../../../../Demo/ARM7_MC13224V_GCC/")
+
 set(LINKER_SCRIPT "${BSP_DIR}econotag.ld")
 
 set(CMAKE_SYSTEM_NAME "Generic")
@@ -45,7 +47,8 @@ add_library(freertos_kernel_port_headers INTERFACE)
 target_include_directories(freertos_kernel_port_headers INTERFACE
         .
         ../../../include/
-        bsp/include/
+        ${BSP_DIR}/include/
+        ${DEMO_DIR}
 )
 target_link_libraries(freertos_kernel_port
        PRIVATE
