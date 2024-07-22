@@ -7,7 +7,7 @@ volatile uint32_t ulCriticalNesting = 9999UL;
 
 /* ISR to handle manual context switches (from a call to taskYIELD()). */
 // void vPortYieldProcessor( void ) __attribute__( (naked) );
-void vPortYieldProcessor( void ) __attribute__( (interrupt("SWI")) );
+// void vPortYieldProcessor( void ) __attribute__( (interrupt("SWI")) );
 
 /*
  * The scheduler can only be started from ARM mode, hence the inclusion of this
@@ -16,12 +16,10 @@ void vPortYieldProcessor( void ) __attribute__( (interrupt("SWI")) );
 void vPortISRStartFirstTask( void );
 /*-----------------------------------------------------------*/
 // void vTickISR( void ) __attribute__( ( naked ) );
-void vTickISR( void ) __attribute__( ( interrupt("IRQ") ) );
+// void vTickISR( void ) __attribute__( ( interrupt("IRQ") ) );
 
 void vPortISRStartFirstTask( void )
 {
-    // prvSetupSWI();
-
     /* Simply start the scheduler.  This is included here as it can only be
      * called from ARM mode. */
     portRESTORE_CONTEXT();
@@ -58,6 +56,8 @@ __attribute__( (interrupt("SWI")) ) void vPortYieldProcessor( void )
  * The ISR used for the scheduler tick.
  */
 
+extern BaseType_t xTaskIncrementTick( void );
+
 __attribute__( ( interrupt("IRQ") ) ) void vTickISR( void )
 {
     /* Save the context of the interrupted task. */
@@ -66,21 +66,25 @@ __attribute__( ( interrupt("IRQ") ) ) void vTickISR( void )
     /* Increment the RTOS tick count, then look for the highest priority
      * task that is ready to run. */
 
-    __asm volatile
-    (
-        "   bl xTaskIncrementTick   \t\n" \
-        "   cmp r0, #0              \t\n" \
-        "   beq SkipContextSwitch   \t\n" \
-        "   bl vTaskSwitchContext   \t\n" \
-        "SkipContextSwitch:         \t\n"
-    );
+    if(xTaskIncrementTick() == pdTRUE){
+        vTaskSwitchContext();
+    }
+
+    // __asm volatile
+    // (
+    //     "   bl xTaskIncrementTick   \t\n" \
+    //     "   cmp r0, #0              \t\n" \
+    //     "   beq SkipContextSwitch   \t\n" \
+    //     "   bl vTaskSwitchContext   \t\n" \
+    //     "SkipContextSwitch:         \t\n"
+    // );
 
     /* Ready for the next interrupt. */
-    // clearInt(getIntTmr());
-    __asm volatile(
-        "   bl      getIntTmr          \t\n" \
-        "   bl      clearInt           \t\n"
-    );
+    clearInt(getIntTmr());
+    // __asm volatile(
+    //     "   bl      getIntTmr          \t\n" \
+    //     "   bl      clearInt           \t\n"
+    // );
 
     /* Restore the context of the new task. */
     portRESTORE_CONTEXT();

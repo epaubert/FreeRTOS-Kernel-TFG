@@ -49,29 +49,38 @@ typedef unsigned long UBaseType_t;
     #error configTICK_TYPE_WIDTH_IN_BITS set to unsupported tick type width.
 #endif
 
-/* Architecture specific optimisations. */
-#ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
-#endif
-
 /* Architecture specifics. */
 #define portSTACK_GROWTH (-1)
 #define portTICK_PERIOD_MS ((TickType_t)1000 / configTICK_RATE_HZ)
 #define portBYTE_ALIGNMENT 4
 #define portNOP() __asm volatile("NOP");
 
-#if configUSE_PORT_OPTIMISED_TASK_SELECTION == 1
+/* Architecture specific optimisations. */
+// #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
+// #define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
+// #endif
 
-/* Check the configuration. */
-#if (configMAX_PRIORITIES > 32)
-#error configUSE_PORT_OPTIMISED_TASK_SELECTION can only be set to 1 when configMAX_PRIORITIES is less than or equal to 32.  It is very rare that a system requires more than 10 to 15 difference priorities as tasks that share a priority will time slice.
-#endif
-
+// #if configUSE_PORT_OPTIMISED_TASK_SELECTION == 1
+//
+// /* Check the configuration. */
+// #if (configMAX_PRIORITIES > 32)
+// #error configUSE_PORT_OPTIMISED_TASK_SELECTION can only be set to 1 when configMAX_PRIORITIES is less than or equal to 32.  It is very rare that a system requires more than 10 to 15 difference priorities as tasks that share a priority will time slice.
+// #endif
+//
 /* Store/clear the ready priorities in a bit map. */
+/*
 #define portRECORD_READY_PRIORITY(uxPriority, uxReadyPriorities)               \
   (uxReadyPriorities) |= (1UL << (uxPriority))
 #define portRESET_READY_PRIORITY(uxPriority, uxReadyPriorities)                \
   (uxReadyPriorities) &= ~(1UL << (uxPriority))
+
+#define portGET_HIGHEST_PRIORITY(uxTopPriority, uxReadyPriorities)             \
+  do {                                                                         \
+    uxTopPriority = 0;                                                         \
+  } while (0)
+
+#endif *//* configUSE_PORT_OPTIMISED_TASK_SELECTION */
+
 
 #define portRESTORE_CONTEXT()                                                 \
     {                                                                         \
@@ -157,17 +166,11 @@ typedef unsigned long UBaseType_t;
     }
 
 extern void vTaskSwitchContext( void );
-extern void vPortYieldProcessor( void );
+// extern void vPortYieldProcessor( void );
 #define portYIELD_FROM_ISR()    vTaskSwitchContext()
-#define portYIELD()             vPortYieldProcessor()
+#define portYIELD()             __asm volatile ( "SWI 0" )
+
 /*-----------------------------------------------------------*/
-
-#define portGET_HIGHEST_PRIORITY(uxTopPriority, uxReadyPriorities)             \
-  do {                                                                         \
-    uxTopPriority = 0;                                                         \
-  } while (0)
-
-#endif /* configUSE_PORT_OPTIMISED_TASK_SELECTION */
 
 /* Disable the interrupts */
 #define portDISABLE_INTERRUPTS()                                       \
