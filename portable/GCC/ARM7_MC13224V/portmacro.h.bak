@@ -1,29 +1,7 @@
 /*
  * FreeRTOS Kernel <DEVELOPMENT BRANCH>
- * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * SPDX-License-Identifier: MIT
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * https://www.FreeRTOS.org
- * https://github.com/FreeRTOS
- *
+ * license and copyright intentionally withheld to promote copying into user
+ * code.
  */
 
 #ifndef PORTMACRO_H
@@ -34,7 +12,6 @@
     extern "C" {
 #endif
 /* *INDENT-ON* */
-
 /*-----------------------------------------------------------
  * Port specific definitions.
  *
@@ -49,17 +26,18 @@
 #include "system.h"
 
 /* Type definitions. */
-#define portCHAR          char
-#define portFLOAT         float
-#define portDOUBLE        double
-#define portLONG          long
-#define portSHORT         short
-#define portSTACK_TYPE    uint32_t
-#define portBASE_TYPE     portLONG
+#define portCHAR char
+#define portFLOAT float
+#define portDOUBLE double
+#define portLONG long
+#define portSHORT short
+#define portSTACK_TYPE uint32_t
+#define portBASE_TYPE portLONG
 
-typedef portSTACK_TYPE   StackType_t;
-typedef long             BaseType_t;
-typedef unsigned long    UBaseType_t;
+typedef portSTACK_TYPE StackType_t;
+typedef long BaseType_t;
+typedef unsigned long UBaseType_t;
+#define portPOINTER_SIZE_TYPE size_t
 
 #if ( configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_16_BITS )
     typedef uint16_t     TickType_t;
@@ -70,24 +48,39 @@ typedef unsigned long    UBaseType_t;
 #else
     #error configTICK_TYPE_WIDTH_IN_BITS set to unsupported tick type width.
 #endif
-/*-----------------------------------------------------------*/
 
 /* Architecture specifics. */
-#define portSTACK_GROWTH      ( -1 )
-#define portTICK_PERIOD_MS    ( ( TickType_t ) 1000 / configTICK_RATE_HZ )
-#define portBYTE_ALIGNMENT    8
-#define portNOP()    __asm volatile ( "NOP" );
-/*-----------------------------------------------------------*/
+#define portSTACK_GROWTH (-1)
+#define portTICK_PERIOD_MS ((TickType_t)1000 / configTICK_RATE_HZ)
+#define portBYTE_ALIGNMENT 4
+#define portNOP() __asm volatile("NOP");
 
+/* Architecture specific optimisations. */
+// #ifndef configUSE_PORT_OPTIMISED_TASK_SELECTION
+// #define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
+// #endif
 
-/* Scheduler utilities. */
-
+// #if configUSE_PORT_OPTIMISED_TASK_SELECTION == 1
+//
+// /* Check the configuration. */
+// #if (configMAX_PRIORITIES > 32)
+// #error configUSE_PORT_OPTIMISED_TASK_SELECTION can only be set to 1 when configMAX_PRIORITIES is less than or equal to 32.  It is very rare that a system requires more than 10 to 15 difference priorities as tasks that share a priority will time slice.
+// #endif
+//
+/* Store/clear the ready priorities in a bit map. */
 /*
- * portRESTORE_CONTEXT, portRESTORE_CONTEXT, portENTER_SWITCHING_ISR
- * and portEXIT_SWITCHING_ISR can only be called from ARM mode, but
- * are included here for efficiency.  An attempt to call one from
- * THUMB mode code will result in a compile time error.
- */
+#define portRECORD_READY_PRIORITY(uxPriority, uxReadyPriorities)               \
+  (uxReadyPriorities) |= (1UL << (uxPriority))
+#define portRESET_READY_PRIORITY(uxPriority, uxReadyPriorities)                \
+  (uxReadyPriorities) &= ~(1UL << (uxPriority))
+
+#define portGET_HIGHEST_PRIORITY(uxTopPriority, uxReadyPriorities)             \
+  do {                                                                         \
+    uxTopPriority = 0;                                                         \
+  } while (0)
+
+#endif *//* configUSE_PORT_OPTIMISED_TASK_SELECTION */
+
 
 #define portRESTORE_CONTEXT()                                                 \
     {                                                                         \
@@ -173,63 +166,43 @@ typedef unsigned long    UBaseType_t;
     }
 
 extern void vTaskSwitchContext( void );
+// extern void vPortYieldProcessor( void );
 #define portYIELD_FROM_ISR()    vTaskSwitchContext()
 #define portYIELD()             __asm volatile ( "SWI 0" )
+
 /*-----------------------------------------------------------*/
 
+/* Disable the interrupts */
+#define portDISABLE_INTERRUPTS()                                       \
+__asm volatile (                                                       \
+    "STMDB  SP!, {R0}       \n\t"   /* Push R0.                     */ \
+    "MRS    R0, CPSR        \n\t"   /* Get CPSR.                    */ \
+    "ORR    R0, R0, #0xC0   \n\t"   /* Disable IRQ, FIQ.            */ \
+    "MSR    CPSR, R0        \n\t"   /* Write back modified value.   */ \
+    "LDMIA  SP!, {R0}           " ) /* Pop R0.                      */
 
-/* Critical section management. */
+/* Enable the interrupts */
+#define portENABLE_INTERRUPTS()                                        \
+__asm volatile (                                                       \
+    "STMDB  SP!, {R0}       \n\t"   /* Push R0.                     */ \
+    "MRS    R0, CPSR        \n\t"   /* Get CPSR.                    */ \
+    "BIC    R0, R0, #0xC0   \n\t"   /* Enable IRQ, FIQ.             */ \
+    "MSR    CPSR, R0        \n\t"   /* Write back modified value.   */ \
+    "LDMIA  SP!, {R0}           " ) /* Pop R0.                      */
 
-/*
- * The interrupt management utilities can only be called from ARM mode.  When
- * THUMB_INTERWORK is defined the utilities are defined as functions in
- * portISR.c to ensure a switch to ARM mode.  When THUMB_INTERWORK is not
- * defined then the utilities are defined as macros here - as per other ports.
- */
-
-#ifdef THUMB_INTERWORK
-
-    extern void vPortDisableInterruptsFromThumb( void ) __attribute__( ( naked ) );
-    extern void vPortEnableInterruptsFromThumb( void ) __attribute__( ( naked ) );
-
-    #define portDISABLE_INTERRUPTS()    vPortDisableInterruptsFromThumb()
-    #define portENABLE_INTERRUPTS()     vPortEnableInterruptsFromThumb()
-
-#else
-
-    #define portDISABLE_INTERRUPTS()                                       \
-    __asm volatile (                                                       \
-        "STMDB  SP!, {R0}       \n\t"   /* Push R0.                     */ \
-        "MRS    R0, CPSR        \n\t"   /* Get CPSR.                    */ \
-        "ORR    R0, R0, #0xC0   \n\t"   /* Disable IRQ, FIQ.            */ \
-        "MSR    CPSR, R0        \n\t"   /* Write back modified value.   */ \
-        "LDMIA  SP!, {R0}           " ) /* Pop R0.                      */
-
-    #define portENABLE_INTERRUPTS()                                        \
-    __asm volatile (                                                       \
-        "STMDB  SP!, {R0}       \n\t"   /* Push R0.                     */ \
-        "MRS    R0, CPSR        \n\t"   /* Get CPSR.                    */ \
-        "BIC    R0, R0, #0xC0   \n\t"   /* Enable IRQ, FIQ.             */ \
-        "MSR    CPSR, R0        \n\t"   /* Write back modified value.   */ \
-        "LDMIA  SP!, {R0}           " ) /* Pop R0.                      */
-
-#endif /* THUMB_INTERWORK */
-
-extern void vPortEnterCritical( void );
-extern void vPortExitCritical( void );
-
-#define portENTER_CRITICAL()    vPortEnterCritical();
-#define portEXIT_CRITICAL()     vPortExitCritical();
-/*-----------------------------------------------------------*/
+#if (configNUMBER_OF_CORES == 1)
+extern void itc_disable_ints(void);
+extern void itc_restore_ints(void);
+/* preserve current interrupt state and then disable interrupts */
+#define portENTER_CRITICAL() itc_disable_ints()
+/* restore previously preserved interrupt state */
+#define portEXIT_CRITICAL() itc_restore_ints()
+#endif /* if ( configNUMBER_OF_CORES == 1 ) */
 
 /* Task function macros as described on the FreeRTOS.org WEB site. */
-#define portTASK_FUNCTION_PROTO( vFunction, pvParameters )    void vFunction( void * pvParameters )
-#define portTASK_FUNCTION( vFunction, pvParameters )          void vFunction( void * pvParameters )
-
-/* *INDENT-OFF* */
-#ifdef __cplusplus
-    }
-#endif
-/* *INDENT-ON* */
+#define portTASK_FUNCTION_PROTO(vFunction, pvParameters)                       \
+  void vFunction(void *pvParameters)
+#define portTASK_FUNCTION(vFunction, pvParameters)                             \
+  void vFunction(void *pvParameters)
 
 #endif /* PORTMACRO_H */
