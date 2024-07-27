@@ -24,5 +24,9 @@ void clearInt(timer_id_t tmr);
 
 timer_id_t getIntTmr(void);
 
+void timerEnable(timer_id_t tmr);
+
+void timerDisable(timer_id_t tmr);
+
 #endif /* __TMR_H__ */
 

@@ -27,8 +27,7 @@
 
 
 // needed for the tick interrupt
-static void prvSetupTimerInterrupt( void );
-void vTickISR( void ) __attribute__( ( interrupt("IRQ") ) );
+__attribute__( ( interrupt("IRQ") ) ) void vTickISR( void );
 
 // TODO: ?
 static void prvSetupTimerInterrupt( void ){

@@ -112,6 +112,7 @@ void TimerInt_Init(timer_id_t tmr, int hz){
    * 187500 Hz / 10 Hz = 18750
    * */
   const uint32_t COUNT_TO = 187500 / hz;
+  timerDisable(tmr);
 
   tmr_regs[tmr].CTRL = 0x20;
 
@@ -128,7 +129,21 @@ void TimerInt_Init(timer_id_t tmr, int hz){
   tmr_regs[tmr].COUNT_MODE = 0x01;
 
   clearInt(tmr);
+  timerEnable(tmr);
 }
+
+void timerEnable(timer_id_t tmr){
+  if (tmr >= timer_0 && tmr < timer_MAX) {
+    tmr_regs->ENBL |= (1 << tmr); // Habilitar el bit correspondiente
+  }
+}
+
+void timerDisable(timer_id_t tmr){
+  if (tmr >= timer_0 && tmr < timer_MAX) {
+    tmr_regs->ENBL &= ~(1 << tmr); // Deshabilitar el bit correspondiente
+  }
+}
+
 
 void clearInt(timer_id_t tmr){
   tmr_regs[tmr].TCF = 0;

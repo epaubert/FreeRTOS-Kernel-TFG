@@ -25,6 +25,7 @@
 @
 @ Vectores de excepción en la RAM
 @
+    .extern vPortYieldProcessor      @ Declare vPortYieldProcessor as external
 	.globl _vector_table
 _vector_table:
 	ldr	pc, [pc, #24]	@ Soft reset
@@ -41,7 +42,6 @@ _vector_table:
 @ Tabla de direcciones absolutas de los manejadores
 @
 	.globl	_excep_handlers
-    .extern vPortYieldProcessor      @ Declare vPortYieldProcessor as external
 _excep_handlers:
 	.word	_soft_reset_handler
 	.word	_undef_handler

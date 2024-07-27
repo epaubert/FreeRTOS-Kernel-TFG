@@ -13,7 +13,7 @@ volatile uint32_t ulCriticalNesting = 9999UL;
  * The scheduler can only be started from ARM mode, hence the inclusion of this
  * function here.
  */
-void vPortISRStartFirstTask( void );
+// void vPortISRStartFirstTask( void );
 /*-----------------------------------------------------------*/
 // void vTickISR( void ) __attribute__( ( naked ) );
 // void vTickISR( void ) __attribute__( ( interrupt("IRQ") ) );
@@ -45,8 +45,8 @@ __attribute__( (interrupt("SWI")) ) void vPortYieldProcessor( void )
     portSAVE_CONTEXT();
 
     /* Find the highest priority task that is ready to run. */
-    // __asm volatile ( "bl vTaskSwitchContext" );
-    vTaskSwitchContext();
+    __asm volatile ( "bl vTaskSwitchContext" );
+    // vTaskSwitchContext();
 
     /* Restore the context of the new task. */
     portRESTORE_CONTEXT();
@@ -66,18 +66,18 @@ __attribute__( ( interrupt("IRQ") ) ) void vTickISR( void )
     /* Increment the RTOS tick count, then look for the highest priority
      * task that is ready to run. */
 
-    if(xTaskIncrementTick() == pdTRUE){
-        vTaskSwitchContext();
-    }
+    // if(xTaskIncrementTick() == pdTRUE){
+    //     vTaskSwitchContext();
+    // }
 
-    // __asm volatile
-    // (
-    //     "   bl xTaskIncrementTick   \t\n" \
-    //     "   cmp r0, #0              \t\n" \
-    //     "   beq SkipContextSwitch   \t\n" \
-    //     "   bl vTaskSwitchContext   \t\n" \
-    //     "SkipContextSwitch:         \t\n"
-    // );
+    __asm volatile
+    (
+        "   bl xTaskIncrementTick   \t\n" \
+        "   cmp r0, #0              \t\n" \
+        "   beq SkipContextSwitch   \t\n" \
+        "   bl vTaskSwitchContext   \t\n" \
+        "SkipContextSwitch:         \t\n"
+    );
 
     /* Ready for the next interrupt. */
     clearInt(getIntTmr());
