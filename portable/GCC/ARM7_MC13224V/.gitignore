@@ -11,3 +11,4 @@ compile_commands.json
 lib/*
 *libbsp.a
 bsp/obj/*
+*.bak

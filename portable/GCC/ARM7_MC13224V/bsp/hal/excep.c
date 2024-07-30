@@ -20,7 +20,7 @@ extern volatile excep_handler_t _excep_handlers[excep_max];
 __attribute__((target("arm")))
 void excep_init ()
 {
-	excep_set_handler (excep_irq, excep_nonnested_irq_handler);
+	excep_set_handler (excep_irq, excep_nested_irq_handler);
 }
 
 /*****************************************************************************/

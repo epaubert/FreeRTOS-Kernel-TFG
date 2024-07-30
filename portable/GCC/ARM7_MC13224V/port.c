@@ -53,11 +53,6 @@
 #define TickTimer timer_0
 #define TimerIntSource itc_src_tmr
 
-/* Constants required to setup the VIC for the tick ISR. */
-#define portTIMER_VIC_CHANNEL              ( ( uint32_t ) 0x0004 )
-#define portTIMER_VIC_CHANNEL_BIT          ( ( uint32_t ) 0x0010 )
-#define portTIMER_VIC_ENABLE               ( ( uint32_t ) 0x0020 )
-
 /*-----------------------------------------------------------*/
 
 /* Setup the timer to generate the tick interrupts. */
@@ -164,6 +159,7 @@ BaseType_t xPortStartScheduler( void )
     vPortISRStartFirstTask();
 
     /* Should not get here! */
+    for(;;){}
     return 0;
 }
 /*-----------------------------------------------------------*/

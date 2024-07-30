@@ -112,8 +112,7 @@ void vPortYieldProcessor( void )
 /*
  * The ISR used for the scheduler tick.
  */
-void vTickISR( void ) __attribute__( ( naked ) );
-void vTickISR( void )
+__attribute__( ( naked ) ) void vTickISR( void )
 {
     /* Save the context of the interrupted task. */
     portSAVE_CONTEXT();

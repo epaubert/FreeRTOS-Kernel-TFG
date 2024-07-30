@@ -50,6 +50,7 @@ add_library(bsp
     util/circular_buffer.c
     hal/bsp_init.c
     hal/crt0.s
+    hal/excep_asm.s
     hal/dev.c
     hal/excep.c
     hal/syscalls.c
