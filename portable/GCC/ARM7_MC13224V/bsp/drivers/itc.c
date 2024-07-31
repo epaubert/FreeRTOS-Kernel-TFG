@@ -152,7 +152,7 @@ inline void itc_set_priority (itc_src_t src, itc_priority_t priority)
         if (priority)
         	itc_regs->INTTYPE = (1 << src);
         else
-                itc_regs->INTTYPE &= ~ (1 << src);
+            itc_regs->INTTYPE &= ~ (1 << src);
 }
 
 /*****************************************************************************/

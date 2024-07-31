@@ -55,10 +55,6 @@
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 
-/* Constants required to handle interrupts. */
-#define portTIMER_MATCH_ISR_BIT    ( ( uint8_t ) 0x01 )
-#define portCLEAR_VIC_INTERRUPT    ( ( uint32_t ) 0 )
-
 /* Constants required to handle critical sections. */
 #define portNO_CRITICAL_NESTING    ( ( uint32_t ) 0 )
 volatile uint32_t ulCriticalNesting = 9999UL;
@@ -75,7 +71,7 @@ void vPortYieldProcessor( void ) __attribute__( ( interrupt( "SWI" ), naked ) );
 void vPortISRStartFirstTask( void );
 /*-----------------------------------------------------------*/
 
-void vPortISRStartFirstTask( void )
+inline void vPortISRStartFirstTask( void )
 {
     /* Simply start the scheduler.  This is included here as it can only be
      * called from ARM mode. */
@@ -125,11 +121,10 @@ __attribute__( ( naked ) ) void vTickISR( void )
         "   cmp r0, #0              \t\n" \
         "   beq SkipContextSwitch   \t\n" \
         "   bl vTaskSwitchContext   \t\n" \
-        "SkipContextSwitch:         \t\n"
+        "SkipContextSwitch:         \t\n" \
+        "   bl getIntTmr            \t\n" \
+        "   bl clearInt             \t\n" 
     );
-
-    /* Ready for the next interrupt. */
-    clearInt(getIntTmr());
 
     /* Restore the context of the new task. */
     portRESTORE_CONTEXT();

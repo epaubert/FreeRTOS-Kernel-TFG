@@ -49,10 +49,6 @@
 #define portINSTRUCTION_SIZE               ( ( StackType_t ) 4 )
 #define portNO_CRITICAL_SECTION_NESTING    ( ( StackType_t ) 0 )
 
-/* Constants required to setup the tick ISR. */
-#define TickTimer timer_0
-#define TimerIntSource itc_src_tmr
-
 /*-----------------------------------------------------------*/
 
 /* Setup the timer to generate the tick interrupts. */
@@ -178,9 +174,11 @@ static void prvSetupTimerInterrupt( void )
 {
     extern void( vTickISR )( void );
 
-    itc_set_handler(TimerIntSource, vTickISR);
-    itc_enable_interrupt(TimerIntSource);
+    // No funcionan las interrupciones rápidas
+    // itc_set_priority (itc_src_tmr, itc_priority_fast);
+    itc_set_handler(itc_src_tmr, vTickISR);
+    itc_enable_interrupt(itc_src_tmr);
 
-    TimerInt_Init(TickTimer, configTICK_RATE_HZ);
+    TimerInt_Init(timer_0, configTICK_RATE_HZ);
 
 }

@@ -11,6 +11,7 @@ set(BSP_DIR "bsp/")
 set(DEMO_DIR "../../../../Demo/ARM7_MC13224V_GCC/")
 
 set(LINKER_SCRIPT "${BSP_DIR}econotag.ld")
+set(OPTIM "-Os")
 
 set(CMAKE_SYSTEM_NAME "Generic")
 set(CMAKE_SYSTEM_PROCESSOR "arm7tdmi")
@@ -25,7 +26,7 @@ set(CMAKE_AR "${CROSS_COMPILE}ar")
 set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "")
 
 # Flags
-set(CFLAGS "-c -g -Og -Wall -mcpu=arm7tdmi") # -g -mthumb -mthumb-interwork 
+set(CFLAGS "-c -g ${OPTIM} -Wall -mcpu=arm7tdmi") # -g -mthumb -mthumb-interwork 
 set(ASFLAGS "-gstabs -mcpu=arm7tdmi -mfpu=softfpa") # -mthumb -mthumb-interwork
 set(ARFLAGS "-src")
 set(LDFLAGS -T${LINKER_SCRIPT})
@@ -58,7 +59,7 @@ target_link_libraries(freertos_kernel_port
 )
 target_compile_options(freertos_kernel_port PRIVATE
     -g
-    -Og
+    ${OPTIM}
     -Wall
     -mcpu=arm7tdmi
     # -mthumb

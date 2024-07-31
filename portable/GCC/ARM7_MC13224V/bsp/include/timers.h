@@ -2,12 +2,19 @@
 #ifndef __TMR_H__
 #define __TMR_H__
 
-#include <stdint.h>
-typedef enum {
-	no_error_timer,
-	error_timer,
-	timer_err_MAX,
-} timer_err_t;
+// #include <stdint.h>
+
+#define TMR_OFFSET      (0x20)
+#define TMR_BASE        (0x80007000)
+#define TMR0_BASE       (TMR_BASE)
+#define TMR1_BASE       (TMR_BASE + TMR_OFFSET*1)
+#define TMR2_BASE       (TMR_BASE + TMR_OFFSET*2)
+#define TMR3_BASE       (TMR_BASE + TMR_OFFSET*3)
+
+#define TMR0_PIN GPIO_08
+#define TMR1_PIN GPIO_09
+#define TMR2_PIN GPIO_10
+#define TMR3_PIN GPIO_11
 
 typedef enum {
 	timer_0 = 0,
@@ -15,8 +22,9 @@ typedef enum {
 	timer_2,
 	timer_3,
 	timer_MAX,
-
 } timer_id_t;
+
+#define GET_TMR(tmr) ((volatile struct tmr_regs_t *) (TMR_BASE + (timer_id_t)(tmr)*TMR_OFFSET))
 
 void TimerInt_Init(timer_id_t tmr, int hz);
 
