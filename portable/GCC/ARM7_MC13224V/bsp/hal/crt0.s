@@ -25,7 +25,6 @@
 @
 @ Vectores de excepción en la RAM
 @
-    .extern vPortYieldProcessor      @ Declare vPortYieldProcessor as external
 	.globl _vector_table
 _vector_table:
 	ldr	pc, [pc, #24]	@ Soft reset
@@ -68,7 +67,7 @@ _soft_reset_handler:
 _undef_handler:
 	b	.
 _swi_handler:
-    ldr     pc, =vPortYieldProcessor  @ Branch to the C SWI handler
+    b   .
 _pabt_handler:
 	b	.
 _dabt_handler:

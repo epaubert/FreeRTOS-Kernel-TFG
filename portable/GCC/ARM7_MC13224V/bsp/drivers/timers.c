@@ -27,7 +27,7 @@ struct tmr_regs_t{
             uint16_t OUTPUT_MODE : 3;
             uint16_t CO_INIT : 1;
             uint16_t DIR : 1;
-            uint16_t LENGHT : 1;
+            uint16_t LENGTH : 1;
             uint16_t ONCE : 1;
             uint16_t SECONDARY_CNT_SRC : 2;
             uint16_t PRIMARY_CNT_SRC : 4;
@@ -107,35 +107,84 @@ static volatile struct tmr_regs_t *const TMR3 = (void *) TMR3_BASE;
 // clock source. The counter then counts to 18750 (dec) where it matches the
 // COMP1 value. At that time an interrupt is generated, the counter is reloaded
 // and the next COMP1 value is loaded from CMPLD1.
-void TimerInt_Init(timer_id_t tmr, int hz){
-    /*
-   * En esta función utilizamos el reloj principal dividido por 128
-   * 24000000 Hz / 128 = 187500 Hz
-   * Si queremos una interrupción cada 100ms:
-   * 1/100ms = 10 Hz
-   * 187500 Hz / 10 Hz = 18750
-   * */
-    volatile struct tmr_regs_t *tmr_regs = GET_TMR(tmr);
+// void TimerInt_Init(timer_id_t tmr, int hz){
+//     /*
+//    * En esta función utilizamos el reloj principal dividido por 128
+//    * 24000000 Hz / 128 = 187500 Hz
+//    * Si queremos una interrupción cada 100ms:
+//    * 1/100ms = 10 Hz
+//    * 187500 Hz / 10 Hz = 18750
+//    * */
+//     volatile struct tmr_regs_t *tmr_regs = GET_TMR(tmr);
+//
+//     const uint32_t COUNT_TO = 187500 / hz;
+//     timerDisable(tmr);
+//
+//     tmr_regs->CTRL = 0x20;
+//
+//     tmr_regs->SCTRL = 0x00;
+//
+//     tmr_regs->LOAD = 0x00;
+//
+//     tmr_regs->COMP1 = COUNT_TO;
+//     tmr_regs->CMPLD1 = COUNT_TO;
+//     tmr_regs->CSCTRL = 0x41;
+//
+//     tmr_regs->PRIMARY_CNT_SRC = 0xF;
+//     tmr_regs->CNTR = 0x00;
+//     tmr_regs->COUNT_MODE = 0x01;
+//
+//     clearInt(tmr);
+//     timerEnable(tmr);
+// }
 
-    const uint32_t COUNT_TO = 187500 / hz;
-    timerDisable(tmr);
+uint32_t timer_setup_irq(timer_id_t timer_id, uint32_t hz)
+{
+    uint32_t actual_rate;
+    volatile struct tmr_regs_t *timer = GET_TMR(timer_id);
+    int log_divisor = 0;
+    uint32_t period;
 
-    tmr_regs->CTRL = 0x20;
+    /* Turn timer off */
+    TMR0->ENBL &= ~(1 << timer_id);
 
-    tmr_regs->SCTRL = 0x00;
+    /* Calculate optimal rate */
+    for (log_divisor = 0; log_divisor < 8; log_divisor++)
+    {
+        int denom = (hz * (1 << log_divisor));
+        period = (CPU_FREQ + denom/2) / denom;
+        if (period <= 65535)
+            break;
+    }
+    if (log_divisor >= 8)
+    {
+        period = 65535;
+        log_divisor = 7;
+    }
 
-    tmr_regs->LOAD = 0x00;
+    if (period < 2) period = 2;
 
-    tmr_regs->COMP1 = COUNT_TO;
-    tmr_regs->CMPLD1 = COUNT_TO;
-    tmr_regs->CSCTRL = 0x41;
+    actual_rate = CPU_FREQ / (period * (1 << log_divisor));
 
-    tmr_regs->PRIMARY_CNT_SRC = 0xF;
-    tmr_regs->CNTR = 0x00;
-    tmr_regs->COUNT_MODE = 0x01;
+    /* Set up timer */
 
-    clearInt(tmr);
-    timerEnable(tmr);
+    timer->LOAD = 0;
+    timer->CMPLD1 = (period - 1);
+    timer->COMP1 = timer->CMPLD1;
+    timer->CNTR = timer->LOAD;
+    timer->SCTRL = 0;
+
+    timer->CL1 = 0x01,	// Reload COMP1 when COMP1 matches
+    timer->COUNT_MODE = 1,		// Count rising edge of primary source
+    timer->PRIMARY_CNT_SRC = 8 + log_divisor,	// Peripheral clock divided by (divisor)
+    timer->LENGTH = 1,			// At compare, reset to LOAD
+
+    TMR0->ENBL |= (1 << timer_id);
+
+    itc_enable_interrupt(itc_src_tmr);
+    timer->TCFIE = 1;
+
+    return actual_rate;
 }
 
 void timerEnable(timer_id_t tmr){

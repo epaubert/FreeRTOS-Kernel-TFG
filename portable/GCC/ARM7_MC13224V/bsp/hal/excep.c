@@ -21,6 +21,7 @@ __attribute__((target("arm")))
 void excep_init ()
 {
 	excep_set_handler (excep_irq, excep_nested_irq_handler);
+	excep_set_handler (excep_fiq, excep_nonnested_irq_handler);
 }
 
 /*****************************************************************************/
@@ -202,9 +203,9 @@ inline excep_handler_t excep_get_handler (excep_t excep)
  * Para poder gestionar interrupciones anidadas y sacar partiro al controlador
  * de interrupciones es necesario escribir el manejador en ensamblador
  */
-__attribute__ ((interrupt ("IRQ"), target("arm"))) void excep_nonnested_irq_handler ()
+__attribute__ ((interrupt ("FIQ"), target("arm"))) void excep_nonnested_irq_handler ()
 {
-	itc_service_normal_interrupt ();
+	itc_service_fast_interrupt ();
 }
 
 /*****************************************************************************/

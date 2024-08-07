@@ -29,9 +29,13 @@ static void bsp_excep_init( void )
  */
 static void bsp_sys_init( void )
 {
-	/* Inicialización de las UARTs */
-	uart_init(UART1_ID, UART1_BAUDRATE, UART1_NAME);
-	uart_init(UART2_ID, UART2_BAUDRATE, UART2_NAME);
+    /* Inicialización de las UARTs */
+    uart_init(UART1_ID, UART1_BAUDRATE, UART1_NAME);
+    uart_init(UART2_ID, UART2_BAUDRATE, UART2_NAME);
+    timerDisable(timer_0);
+    timerDisable(timer_1);
+    timerDisable(timer_2);
+    timerDisable(timer_3);
 }
 
 /*****************************************************************************/
