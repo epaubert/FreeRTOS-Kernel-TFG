@@ -9,7 +9,7 @@ set(CMAKE_SYSTEM_NAME "Generic")
 set(CMAKE_SYSTEM_PROCESSOR "arm7tdmi")
 
 set(CROSS_COMPILE "${BIN}arm-none-eabi-")
-set(OPTIM "-Os")
+set(OPTIM "-O1")
 
 set(CMAKE_C_COMPILER "${CROSS_COMPILE}gcc")
 set(CMAKE_CXX_COMPILER "${CROSS_COMPILE}g++")
@@ -25,8 +25,16 @@ set(CMAKE_AR "${CROSS_COMPILE}ar")
 set(CMAKE_EXE_LINKER_FLAGS "-specs=nosys.specs" CACHE INTERNAL "")
 
 # Flags
-set(CFLAGS "-c -g ${OPTIM} -Wall -mcpu=arm7tdmi") # -mthumb -mthumb-interwork")
-set(ASFLAGS "-gstabs -mcpu=arm7tdmi -mfpu=softfpa") # -mthumb")
+set(CFLAGS 
+    -c
+    -g 
+    ${OPTIM} 
+    -Wall 
+    -mcpu=arm7tdmi
+    # -mthumb
+    # -mthumb-interwork
+)
+set(ASFLAGS "-g -mcpu=arm7tdmi -mfpu=softfpa") # -mthumb") -gstabs 
 set(ARFLAGS "-src")
 
 project(bsp_econotag C ASM)
@@ -63,10 +71,5 @@ add_library(bsp
 set_target_properties(bsp PROPERTIES LINKER_LANGUAGE C)
 target_include_directories( bsp PUBLIC "include")
 target_compile_options(bsp PRIVATE
-    -g
-    ${OPTIM}
-    -Wall
-    -mcpu=arm7tdmi
-    # -mthumb
-    # -mthumb-interwork
+    "${CFLAGS}"
 )

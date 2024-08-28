@@ -138,6 +138,13 @@ static volatile struct tmr_regs_t *const TMR3 = (void *) TMR3_BASE;
 //     timerEnable(tmr);
 // }
 
+void timer_init(){
+    timerDisable(timer_0);
+    timerDisable(timer_1);
+    timerDisable(timer_2);
+    timerDisable(timer_3);
+}
+
 uint32_t timer_setup_irq(timer_id_t timer_id, uint32_t hz)
 {
     uint32_t actual_rate;
@@ -179,10 +186,10 @@ uint32_t timer_setup_irq(timer_id_t timer_id, uint32_t hz)
     timer->PRIMARY_CNT_SRC = 8 + log_divisor,	// Peripheral clock divided by (divisor)
     timer->LENGTH = 1,			// At compare, reset to LOAD
 
-    TMR0->ENBL |= (1 << timer_id);
 
     itc_enable_interrupt(itc_src_tmr);
     timer->TCFIE = 1;
+    TMR0->ENBL |= (1 << timer_id);
 
     return actual_rate;
 }
@@ -190,12 +197,14 @@ uint32_t timer_setup_irq(timer_id_t timer_id, uint32_t hz)
 void timerEnable(timer_id_t tmr){
     if (tmr >= timer_0 && tmr < timer_MAX) {
         TMR0->ENBL |= (1 << tmr); // Habilitar el bit correspondiente
+        GET_TMR(tmr)->TCFIE = 1;
     }
 }
 
 void timerDisable(timer_id_t tmr){
     if (tmr >= timer_0 && tmr < timer_MAX) {
         TMR0->ENBL &= ~(1 << tmr); // Deshabilitar el bit correspondiente
+        GET_TMR(tmr)->TCFIE = 0;
     }
 }
 

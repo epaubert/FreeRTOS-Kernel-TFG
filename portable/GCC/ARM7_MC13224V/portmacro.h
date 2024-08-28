@@ -48,6 +48,13 @@
 // System definitions from the bsp
 #include "system.h"
 
+// Utilizamos el timer_0
+#define TICK_TIMER 0 
+
+// Macros para expandir TICK_TIMER en ensamblador
+#define str(s) #s
+#define xstr(s) str(s)
+
 /* Type definitions. */
 #define portCHAR          char
 #define portFLOAT         float
@@ -75,7 +82,7 @@ typedef unsigned long    UBaseType_t;
 /* Architecture specifics. */
 #define portSTACK_GROWTH      ( -1 )
 #define portTICK_PERIOD_MS    ( ( TickType_t ) 1000 / configTICK_RATE_HZ )
-#define portBYTE_ALIGNMENT    4
+#define portBYTE_ALIGNMENT    8
 #define portNOP()    __asm volatile ( "NOP" );
 /*-----------------------------------------------------------*/
 

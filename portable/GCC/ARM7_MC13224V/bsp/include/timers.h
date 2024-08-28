@@ -26,7 +26,10 @@ typedef enum {
 
 #define GET_TMR(tmr) ((volatile struct tmr_regs_t *) (TMR_BASE + (timer_id_t)(tmr)*TMR_OFFSET))
 
+void timer_init();
+
 // void TimerInt_Init(timer_id_t tmr, int hz);
+
 uint32_t timer_setup_irq(timer_id_t timer_id, uint32_t hz);
 
 void clearInt(timer_id_t tmr);

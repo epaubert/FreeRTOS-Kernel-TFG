@@ -71,7 +71,7 @@ void vPortYieldProcessor( void ) __attribute__( ( interrupt( "SWI" ), naked ) );
 void vPortISRStartFirstTask( void );
 /*-----------------------------------------------------------*/
 
-inline void vPortISRStartFirstTask( void )
+void vPortISRStartFirstTask( void )
 {
     /* Simply start the scheduler.  This is included here as it can only be
      * called from ARM mode. */
@@ -115,15 +115,16 @@ __attribute__( (naked) ) void vTickISR( void )
 
     /* Increment the RTOS tick count, then look for the highest priority
      * task that is ready to run. */
+    // DONE: Sustituir getIntTmr por un mov r0 timer_0 o equivalente
     __asm volatile
     (
-        "   bl xTaskIncrementTick   \t\n" \
-        "   cmp r0, #0              \t\n" \
-        "   beq SkipContextSwitch   \t\n" \
-        "   bl vTaskSwitchContext   \t\n" \
-        "SkipContextSwitch:         \t\n" \
-        "   bl getIntTmr            \t\n" \
-        "   bl clearInt             \t\n" 
+        "   bl xTaskIncrementTick           \t\n" \
+        "   cmp r0, #0                      \t\n" \
+        "   beq SkipContextSwitch           \t\n" \
+        "   bl vTaskSwitchContext           \t\n" \
+        "SkipContextSwitch:                 \t\n" \
+        "   mov r0, #" xstr(TICK_TIMER) "   \t\n" \
+        "   bl clearInt                     \t\n" 
     );
 
     /* Restore the context of the new task. */

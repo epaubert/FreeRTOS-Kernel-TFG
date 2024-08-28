@@ -51,6 +51,7 @@
 
 /*-----------------------------------------------------------*/
 
+// __attribute__( ( interrupt( "SWI" ), naked ) ) void vPortYieldProcessor( void );
 void vPortYieldProcessor( void ) __attribute__( ( interrupt( "SWI" ), naked ) );
 
 /* Setup the timer to generate the tick interrupts. */
@@ -159,7 +160,6 @@ BaseType_t xPortStartScheduler( void )
     vPortISRStartFirstTask();
 
     /* Should not get here! */
-    for(;;){}
     return 0;
 }
 /*-----------------------------------------------------------*/
@@ -178,11 +178,9 @@ static void prvSetupTimerInterrupt( void )
 {
     extern __attribute__( (naked) ) void( vTickISR )( void );
 
-    // No funcionan las interrupciones rápidas
     itc_set_priority(itc_src_tmr, itc_priority_fast);
     itc_set_handler(itc_src_tmr, vTickISR);
-    itc_enable_interrupt(itc_src_tmr);
 
-    timer_setup_irq(timer_0, configTICK_RATE_HZ);
+    timer_setup_irq(TICK_TIMER, configTICK_RATE_HZ);
 
 }

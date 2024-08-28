@@ -147,9 +147,27 @@ void excep_nonnested_irq_handler ();
 /*****************************************************************************/
 
 /**
+ * Manejador en C para interrupciones normales no anidadas
+ * El atributo interrupt no guarda en la pila el registro spsr, por lo que
+ * sólo genera manejadores para interrupciones no anidadas
+ * Para poder gestionar interrupciones anidadas y sacar partiro al controlador
+ * de interrupciones es necesario escribir el manejador en ensamblador
+ */
+void excep_nonnested_fiq_handler ();
+
+/*****************************************************************************/
+
+/**
  * Manejador en ensamblador para interrupciones normales no anidadas
  */
 void excep_nonnested_irq_handler_asm ();
+
+/*****************************************************************************/
+
+/**
+ * Manejador en ensamblador para interrupciones normales no anidadas
+ */
+void excep_nonnested_fiq_handler_asm ();
 
 /*****************************************************************************/
 
