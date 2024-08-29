@@ -50,7 +50,7 @@ excep_nonnested_irq_handler_asm:
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @
-@ Manejador en ensamblador para interrupciones rápìdas no anidadas
+@ Manejador en ensamblador para interrupciones rápidas no anidadas
 @
 	.align	4
 	.globl	excep_nonnested_fiq_handler_asm
@@ -59,17 +59,14 @@ excep_nonnested_irq_handler_asm:
 excep_nonnested_fiq_handler_asm:
 
 	@ Entrada del manejador
-	sub		lr, lr, #4						@ Ajustamos el registro de enlace
+	# sub		lr, lr, #4						@ Ajustamos el registro de enlace
+	# add		lr, lr, #4						@ Ajustamos el registro de enlace
 	stmfd	sp!, {a1-a4, lr}				@ Salvamos los registros corruptibles (según AAPCS)
-	
-	# @ stmfd	sp!, {r8-r12}					@ Salvamos los registros FIQ solo si se van a utilizar
 	
 	@ Servimos la interrupción
 	ldr		ip, =itc_service_fast_interrupt
 	mov		lr, pc
 	bx		ip
-
-	# @ ldmfd	sp!, {r8-r12}					@ Recuperamos los registros FIQ si fueron salvados
 
 	@ Salida del manejador
 	ldmfd	sp!, {a1-a4, pc}^				@ Recuperamos los registros y retornamos
