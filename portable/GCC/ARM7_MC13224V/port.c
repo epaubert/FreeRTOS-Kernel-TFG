@@ -178,8 +178,12 @@ static void prvSetupTimerInterrupt( void )
 {
     extern __attribute__( (naked) ) void( vTickISR )( void );
 
+    // Como las interrupciones de el timer van a
+    // provocar una FIQ, hacemos que vTickISR 
+    // gestione las FIQ
     itc_set_priority(itc_src_tmr, itc_priority_fast);
-    itc_set_handler(itc_src_tmr, vTickISR);
+    // itc_set_handler(itc_src_tmr, vTickISR);
+	excep_set_handler(excep_fiq, vTickISR);
 
     timer_setup_irq(TICK_TIMER, configTICK_RATE_HZ);
 
