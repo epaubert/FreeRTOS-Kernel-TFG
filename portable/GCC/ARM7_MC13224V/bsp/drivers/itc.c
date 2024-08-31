@@ -217,6 +217,7 @@ void itc_service_normal_interrupt ()
 /**
  * Da servicio a la interrupción rápida pendiente de más prioridad
  */
+// __attribute__((interrupt("FIQ")))
 void itc_service_fast_interrupt ()
 {
 	itc_handlers[itc_regs->FIVECTOR]();

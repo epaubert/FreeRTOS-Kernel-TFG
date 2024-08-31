@@ -59,7 +59,8 @@ excep_nonnested_irq_handler_asm:
 excep_nonnested_fiq_handler_asm:
 
 	@ Entrada del manejador
-	sub		lr, lr, #4						@ Ajustamos el registro de enlace
+	# sub		lr, lr, #4						@ Ajustamos el registro de enlace
+	# add		lr, lr, #4						@ Ajustamos el registro de enlace
 	stmfd	sp!, {a1-a4, lr}				@ Salvamos los registros corruptibles (según AAPCS)
 	
 	@ Servimos la interrupción
